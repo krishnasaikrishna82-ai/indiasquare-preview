@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-54 -54 108 108">
+<g><path d="M0 0L15-19L3-50Z" fill="#DDDD44"></path><path d="M0 0L3-50L-11-23Z" fill="#C8C833"></path></g>
+<g transform="rotate(45)"><path d="M0 0L15-19L3-50Z" fill="#FFDD11"></path><path d="M0 0L3-50L-11-23Z" fill="#F2C800"></path></g>
+<g transform="rotate(90)"><path d="M0 0L15-19L3-50Z" fill="#FFBB22"></path><path d="M0 0L3-50L-11-23Z" fill="#F0A010"></path></g>
+<g transform="rotate(135)"><path d="M0 0L15-19L3-50Z" fill="#DD3333"></path><path d="M0 0L3-50L-11-23Z" fill="#C42626"></path></g>
+<g transform="rotate(180)"><path d="M0 0L15-19L3-50Z" fill="#DD3399"></path><path d="M0 0L3-50L-11-23Z" fill="#C2287F"></path></g>
+<g transform="rotate(225)"><path d="M0 0L15-19L3-50Z" fill="#994499"></path><path d="M0 0L3-50L-11-23Z" fill="#7E3480"></path></g>
+<g transform="rotate(270)"><path d="M0 0L15-19L3-50Z" fill="#0099DD"></path><path d="M0 0L3-50L-11-23Z" fill="#66CCEE"></path></g>
+<g transform="rotate(315)"><path d="M0 0L15-19L3-50Z" fill="#88AA44"></path><path d="M0 0L3-50L-11-23Z" fill="#6F9033"></path></g>
+</svg>
