@@ -79,14 +79,19 @@
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fsExit(); });
   /* share: native share sheet on phones, otherwise jump to the share buttons */
   var ns = $('[data-native-share]');
-  if (ns && navigator.share) {
+  var touch = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  var nativeShare = function () {
+    var u = ns.getAttribute('data-url'), t = ns.getAttribute('data-text');
+    return navigator.share({ title: ns.getAttribute('data-title') || document.title, text: t + ' ' + u, url: u }).catch(function () {});
+  };
+  if (ns && navigator.share && touch) {
     ns.hidden = false;
-    ns.addEventListener('click', function () { navigator.share({ title: document.title, text: ns.getAttribute('data-text'), url: ns.getAttribute('data-url') }).catch(function () {}); });
+    ns.addEventListener('click', nativeShare);
   }
   $$('[data-share-open]').forEach(function (b) {
     b.addEventListener('click', function (e) {
       e.preventDefault();
-      if (navigator.share && ns) { navigator.share({ title: document.title, text: ns.getAttribute('data-text'), url: ns.getAttribute('data-url') }).catch(function () {}); return; }
+      if (navigator.share && ns && touch) { nativeShare(); return; }
       var box = document.getElementById('share');
       if (box) { box.scrollIntoView({ behavior: 'smooth', block: 'center' }); box.style.boxShadow = '0 0 0 4px #C82A85'; setTimeout(function () { box.style.boxShadow = ''; }, 1600); }
     });
@@ -142,12 +147,19 @@
     var setBtn = function (v) {
       var b = $('.isq-form-donate button[type=submit]', scope);
       if (!b) return;
-      var span = $('span', b), txt = 'Donate $' + (v || '') + ' securely';
+      var n = parseFloat(v), ok = isFinite(n) && n >= 1 && n <= 50000;
+      var span = $('span', b), txt = ok ? 'Donate $' + (Math.round(n * 100) / 100) + ' securely' : 'Donate securely';
       if (span) span.textContent = txt; else b.textContent = txt;
       b.setAttribute('data-alt-text', 'Sending…');
     };
     var set = function (v, fromInput) {
       var i = input();
+      // Form already sent (payment step showing): the chips change the amount on the payment button.
+      var pay = $('[data-pay-tpl]', scope.closest('.isq-modal-box, section, .isq-form') || scope);
+      if (pay && !i) {
+        pay.setAttribute('href', pay.getAttribute('data-pay-tpl').replace(/\{amount\}/g, encodeURIComponent(v)));
+        var amt = $('.isq-pay-amt', pay); if (amt) amt.textContent = ' · $' + v;
+      }
       if (i && !fromInput) { i.value = v; i.dispatchEvent(new Event('change', { bubbles: true })); }
       achips.forEach(function (x) { var on = x.getAttribute('data-amt') === String(v); x.classList.toggle('on', on); x.setAttribute('aria-pressed', on ? 'true' : 'false'); });
       setBtn(v);
@@ -234,6 +246,98 @@
     var nm = document.createElement('span'); nm.className = 'isq-seg-name'; l.insertBefore(nm, n); nm.appendChild(n);
     var p = document.createElement('span'); p.className = 'isq-seg-price'; p.textContent = txt.slice(j + 3); l.appendChild(p);
   });
+
+  /* ---------------- donation popup: side image column takes the banner's own shape */
+  $$('.isq-pop-artimg').forEach(function (im) {
+    var fit = function () {
+      if (!im.naturalWidth) return;
+      var r = Math.max(0.45, Math.min(1.1, im.naturalWidth / im.naturalHeight));
+      var box = im.closest('.isq-modal-box'); if (box) box.style.setProperty('--r', r.toFixed(4));
+    };
+    if (im.complete) fit(); else im.addEventListener('load', fit);
+  });
+
+  /* ---------------- form checks: trim spaces, block whitespace-only, symbols in names, bad phones, negative amounts */
+  var RE = {
+    person: /^[A-Za-z\u00C0-\u024F\u0900-\u097F][A-Za-z\u00C0-\u024F\u0900-\u097F .'\u2019,-]*$/,
+    letters2: /[A-Za-z\u00C0-\u024F\u0900-\u097F].*[A-Za-z\u00C0-\u024F\u0900-\u097F]/,
+    word: /[A-Za-z0-9\u00C0-\u024F\u0900-\u097F].*[A-Za-z0-9\u00C0-\u024F\u0900-\u097F]/,
+    letter: /[A-Za-z\u00C0-\u024F\u0900-\u097F]/,
+    phone: /^[+()\-.\s\d]+$/,
+    price: /^(\$?\s?\d{1,3}(,?\d{3})*(\.\d{1,2})?(\s?(\/\s?\w+|obo))?|free|negotiable|call|best offer)$/i
+  };
+  var formKey = function (f) {
+    var c = f.closest('.wpforms-container'), m = c && /isq-wpf-(\w+)/.exec(c.className);
+    if (m) return m[1];
+    var h = f.querySelector('input[name="isq_form"]'); return h ? h.value : '';
+  };
+  var fieldKey = function (el) {
+    var c = el.closest('.wpforms-field'), m = c && /(?:^|\s)isq-f-(\w+)/.exec(c.className);
+    if (m) return m[1];
+    m = /^isq\[(\w+?)(?:_(first|last))?\]/.exec(el.name || ''); return m ? m[1] : '';
+  };
+  var ruleFor = function (form, key, el) {
+    if (!key || el.type === 'email' || el.type === 'checkbox' || el.type === 'file' || el.tagName === 'SELECT') return '';
+    if (el.closest('.wpforms-field-name') || /_(first|last)\]$/.test(el.name || '') || ['name', 'contact', 'authorizing', 'signature'].indexOf(key) > -1 || (form === 'sponsor' && key === 'title')) return 'person';
+    if (key === 'phone') return 'phone';
+    if (key === 'amount') return 'amount';
+    if (key === 'price') return 'price';
+    if (el.type === 'url' || key === 'website') return 'url';
+    return 'text';
+  };
+  var check = function (rule, v, req, el) {
+    v = v.replace(/\s+/g, ' ').trim();
+    if (!v) return req ? 'This field is required.' : '';
+    if (rule === 'person' && (!RE.person.test(v) || !RE.letters2.test(v))) return 'Please use letters only (spaces, hyphens and apostrophes are fine).';
+    if (rule === 'phone') { var d = v.replace(/\D/g, ''); if (!RE.phone.test(v) || d.length < 10 || d.length > 15) return 'Please enter a valid phone number (10–15 digits).'; }
+    if (rule === 'amount') { var n = parseFloat(v), min = Math.max(1, parseFloat(el.getAttribute('min')) || 1); if (!isFinite(n) || n < min || n > 50000) return 'Please enter an amount between $' + min + ' and $50,000.'; }
+    if (rule === 'price' && !RE.price.test(v)) return 'Please enter a price like $1,200, or “Free” / “Negotiable”.';
+    if (rule === 'url' && !/^(https?:\/\/)?[\w-]+(\.[\w-]+)+(\/\S*)?$/i.test(v)) return 'Please enter a valid website address.';
+    if (rule === 'text' && (!RE.word.test(v) || !RE.letter.test(v))) return 'Please enter real text, not only numbers or symbols.';
+    return '';
+  };
+  var showErr = function (el, msg) {
+    var wrap = el.closest('.wpforms-field-row-block') || el.closest('.wpforms-field') || el.parentElement;
+    var old = wrap.querySelector('.isq-ferr'); if (old) old.remove();
+    el.classList.toggle('isq-invalid', !!msg);
+    el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    if (!msg) return;
+    var em = document.createElement('em'); em.className = 'isq-ferr'; em.setAttribute('role', 'alert'); em.textContent = msg;
+    el.insertAdjacentElement('afterend', em);
+  };
+  var fieldsOf = function (f) { return $$('input[type=text], input[type=tel], input[type=number], input[type=url], input:not([type]), textarea', f).filter(function (el) { return !el.closest('.isq-hp') && !el.closest('[data-field-type]:not([class*="isq-f-"])') && !el.disabled && el.offsetParent !== null; }); };
+  var validateForm = function (f) {
+    var fk = formKey(f), first = null;
+    fieldsOf(f).forEach(function (el) {
+      el.value = el.value.replace(/[ \t]+/g, ' ').replace(/^\s+|\s+$/g, '');
+      var rule = ruleFor(fk, fieldKey(el), el); if (!rule) return;
+      var req = el.required || el.classList.contains('wpforms-field-required');
+      var msg = check(rule, el.value, req, el);
+      showErr(el, msg); if (msg && !first) first = el;
+    });
+    if (first) { first.focus({ preventScroll: true }); first.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    return !first;
+  };
+  var ourForm = function (f) { return f && (f.classList.contains('isq-native') || !!f.closest('.isq-form') || !!f.closest('[class*="isq-wpf-"]')); };
+  document.addEventListener('submit', function (e) {
+    var f = e.target; if (!ourForm(f)) return;
+    if (!validateForm(f)) { e.preventDefault(); e.stopImmediatePropagation(); }
+  }, true);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.wpforms-submit, button[type=submit], input[type=submit]'); if (!b) return;
+    var f = b.form; if (!ourForm(f)) return;
+    if (!validateForm(f)) { e.preventDefault(); e.stopImmediatePropagation(); }
+  }, true);
+  document.addEventListener('focusout', function (e) {
+    var el = e.target; if (!el.matches || !el.matches('input, textarea') || !ourForm(el.form)) return;
+    if (['text', 'tel', 'url', 'number', 'textarea', ''].indexOf(el.type || '') < 0 && el.tagName !== 'TEXTAREA') return;
+    el.value = el.value.replace(/[ \t]+/g, ' ').replace(/^\s+|\s+$/g, '');
+    if (el.classList.contains('isq-invalid')) { var r = ruleFor(formKey(el.form), fieldKey(el), el); if (r) showErr(el, check(r, el.value, el.required || el.classList.contains('wpforms-field-required'), el)); }
+  });
+  document.addEventListener('input', function (e) { var el = e.target; if (el.classList && el.classList.contains('isq-invalid')) showErr(el, ''); });
+  // Helpful keyboards / limits.
+  $$('.isq-f-phone input, input[name="isq[phone]"]').forEach(function (el) { el.setAttribute('inputmode', 'tel'); el.setAttribute('autocomplete', 'tel'); if (!el.maxLength || el.maxLength < 0 || el.maxLength > 20) el.maxLength = 20; });
+  $$('.isq-f-amount input, input.isq-amount, input[name="isq[amount]"]').forEach(function (el) { if (!el.min || +el.min < 1) el.min = 1; el.max = 50000; el.step = 'any'; });
 
   /* ---------------- sticky header: compact + shadow once the page scrolls */
   var hdr = $('.isq-hdr');

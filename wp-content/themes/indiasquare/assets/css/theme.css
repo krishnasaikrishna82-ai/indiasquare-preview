@@ -34,7 +34,7 @@ body.admin-bar .isq-modal{top:32px}
 .isq-form .wpforms-container .wpforms-field-label-inline{display:block;font-family:inherit!important;font-size:14px!important;font-weight:700!important;margin:0 0 8px!important;color:#221122!important}
 .isq-form .wpforms-container .wpforms-field-sublabel{font-size:13px!important;color:#6E5F72!important;margin-top:6px!important}
 .isq-form .wpforms-container .wpforms-required-label{color:#C42626!important}
-.isq-form .wpforms-container input[type=text],.isq-form .wpforms-container input[type=email],.isq-form .wpforms-container input[type=tel],.isq-form .wpforms-container input[type=url],.isq-form .wpforms-container input[type=number],.isq-form .wpforms-container select,.isq-form .wpforms-container textarea{width:100%!important;max-width:100%!important;box-sizing:border-box!important;min-height:50px!important;height:auto!important;padding:12px 14px!important;border:1.5px solid #E6DCE8!important;border-radius:12px!important;font-family:inherit!important;font-size:16px!important;color:#221122!important;background:#fff!important;box-shadow:none!important}
+.isq-form .wpforms-container input[type=text],.isq-form .wpforms-container input[type=email],.isq-form .wpforms-container input[type=tel],.isq-form .wpforms-container input[type=url],.isq-form .wpforms-container input[type=number],.isq-form .wpforms-container select,.isq-form .wpforms-container textarea{width:100%!important;max-width:100%!important;box-sizing:border-box!important;min-height:50px!important;padding:12px 14px!important;border:1.5px solid #E6DCE8!important;border-radius:12px!important;font-family:inherit!important;font-size:16px!important;color:#221122!important;background:#fff!important;box-shadow:none!important}
 .isq-form .wpforms-container textarea{min-height:120px!important}
 .isq-form .wpforms-container .wpforms-field-medium textarea,.isq-form .wpforms-container textarea.wpforms-field-medium{min-height:120px!important}
 .isq-form .wpforms-container textarea.wpforms-field-small{min-height:80px!important}
@@ -200,8 +200,8 @@ html{scroll-padding-top:100px}
 .isq-hdr .hdr{transition:padding .25s ease}
 .isq-hdr.is-stuck{box-shadow:0 10px 28px -18px rgba(34,17,34,.45)}
 .isq-hdr.is-stuck .hdr{padding-top:9px!important;padding-bottom:9px!important}
-.isq-hdr .hdr>a:first-child svg,.isq-hdr .hdr>a:first-child img{transition:width .25s ease,height .25s ease}
-.isq-hdr.is-stuck .hdr>a:first-child svg,.isq-hdr.is-stuck .hdr>a:first-child img{width:40px;height:40px}
+.isq-hdr .hdr>a:first-child svg,.isq-hdr .hdr>a:first-child .isq-logo-mark,.isq-hdr .isq-logo-full{transition:width .25s ease,height .25s ease}
+.isq-hdr.is-stuck .hdr>a:first-child svg,.isq-hdr.is-stuck .hdr>a:first-child .isq-logo-mark{width:40px!important;height:40px!important}
 body.admin-bar .isq-hdr{top:32px}
 @media (max-width:782px){body.admin-bar .isq-hdr{top:46px}}
 @media (max-width:600px){body.admin-bar .isq-hdr{top:0}}
@@ -236,3 +236,50 @@ body.isq-fs-mode .isq-hdr{position:relative}
   .isq-pop-artimg{height:auto;max-height:38vh;max-height:38dvh}
   .isq-pop-top .isq-pop-banner{max-height:38vh;max-height:38dvh}
 }
+
+/* ================= QA fixes (Oct 2026) ================= */
+/* inputs keep auto height; textareas can be resized by the user */
+.isq-form .wpforms-container input,.isq-form .wpforms-container select{height:auto!important}
+.isq-form .wpforms-container textarea,.isq-native textarea,textarea.f-in{resize:vertical!important;height:auto;max-height:none!important}
+/* WPForms anti-spam honeypot: never visible (it showed up as an empty box next to “Submit”) */
+.wpforms-form .wpforms-field-hp,.wpforms-form .wpforms-field[data-field-type]:not([class*="isq-f-"]){position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;padding:0!important;margin:0!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
+/* inline field errors from the theme's checks */
+.isq-ferr{display:block;margin-top:6px;font-style:normal;font-size:13px;font-weight:600;color:#C42626}
+.isq-ferr::before{content:"!";display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;margin-right:6px;border-radius:50%;background:#C42626;color:#fff;font-size:11px;font-weight:800;vertical-align:1px}
+.isq-invalid,.isq-form .wpforms-container .isq-invalid{border-color:#C42626!important;box-shadow:0 0 0 3px rgba(196,38,38,.12)!important}
+/* confirmation messages centred in their card */
+.isq-form .wpforms-confirmation-container-full,.isq-form .isq-success,.isq-native+.isq-success{text-align:center}
+/* donation popup: no sideways scroll, form scrolls inside */
+.isq-modal-box{overflow-x:hidden!important}
+.isq-pop-body{min-width:0}
+.isq-modal .wpforms-container,.isq-modal .wpforms-form{max-width:100%!important;overflow-x:hidden}
+@media (min-width:761px){
+  .isq-modal-donate.isq-pop-side{--ph:min(780px,calc(100vh - 36px));height:var(--ph);max-height:var(--ph);overflow:hidden!important;grid-template-rows:minmax(0,1fr);grid-template-columns:calc(var(--ph) * var(--r,.66)) minmax(0,1fr);max-width:calc(var(--ph) * var(--r,.66) + 560px)}
+  .isq-pop-side .isq-pop-art.is-img{height:100%;min-height:0;background:#2A1030;border-radius:26px 0 0 26px}
+  .isq-pop-side .isq-pop-artimg{width:100%;height:100%;max-height:none;object-fit:cover;object-position:center}
+  .isq-pop-side .isq-pop-body{box-sizing:border-box;height:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
+  .isq-pop-side .isq-x{background:rgba(255,255,255,.92)}
+}
+@media (max-width:760px){
+  .isq-pop-side .isq-pop-art.is-img{display:none}
+  .isq-modal-donate.isq-pop-side .isq-pop-body{padding-top:58px}
+}
+/* photo / ad viewer: centred arrows, larger photos on big screens */
+.isq-lb-nav{padding:0;line-height:0}
+.isq-lb-nav svg{display:block}
+#isq-lightbox .isq-lb-img{background:transparent;width:auto;height:auto}
+@media (min-width:1200px){
+  #isq-lightbox .isq-lb-img{height:min(80vh,920px);max-height:calc(100dvh - 140px);max-width:min(88vw,1500px);object-fit:contain}
+  #isq-lightbox{padding:48px 96px}
+  .isq-lb-prev{left:28px}.isq-lb-next{right:28px}
+}
+/* classifieds: softer card shadow (was a hard line under the search card) */
+[style*="box-shadow: 0 30px 70px -40px rgba(34,17,34,.35)"]{box-shadow:0 18px 44px -22px rgba(34,17,34,.18),0 2px 6px rgba(34,17,34,.04)!important}
+/* “Post an advertisement”: card and text centred with each other */
+#post{align-items:center!important}
+/* call-to-action band: even space above and below */
+main section[style*="padding: 0 24px 104px"]:has(> div[style*="border-radius: 30px"]){padding:72px 24px 80px!important}
+/* directory: highlight a card on hover only with a mouse (no “stuck” highlight on touch) */
+@media (hover:none){.isq-biz:hover:not(.is-hi){border-color:#F0EAF1;box-shadow:none}}
+.isq-hdr.is-stuck .isq-logo-full{height:42px!important}
+@media (max-width:520px){.isq-logo-full{height:40px!important;max-width:170px!important}}
