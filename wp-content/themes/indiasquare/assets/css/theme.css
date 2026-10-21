@@ -159,3 +159,17 @@ body.isq-lock{overflow:hidden}
 @media (max-width:640px){.player.has-video{aspect-ratio:16/9!important}.isq-pl-actions{width:100%}.isq-pl-btn{flex:1;justify-content:center}}
 body.isq-fs-mode main section,body.isq-fs-mode .isq-player-wrap{transform:none!important;animation:none!important}
 body.isq-fs-mode .isq-fab{display:none}
+
+/* ---------- popups on phones: fit the visible screen, close button always visible */
+@keyframes isqfade{from{opacity:0}to{opacity:1}}
+@media (max-width:760px){
+  .isq-modal{padding:10px;padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+  .isq-modal-box{max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));border-radius:20px;animation-name:isqfade;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+  .isq-modal .isq-x{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:16px;z-index:95;display:flex;align-items:center;justify-content:center;width:42px;height:42px;font-size:28px;background:#FFFFFF!important;color:#221122!important;box-shadow:0 6px 18px rgba(0,0,0,.32)}
+  .isq-pop-art{min-height:120px;border-radius:20px 20px 0 0}
+  .isq-pop-banner{max-height:26vh;border-radius:20px 20px 0 0}
+  .isq-pop-body,.isq-modal-donate .isq-pop-body{padding:20px 16px 18px}
+  .isq-pop-none .isq-pop-body{padding-top:58px}
+  .isq-modal-box h2{font-size:clamp(22px,6.4vw,28px)!important;padding-right:44px}
+}
+@media (max-width:782px){body.admin-bar .isq-modal{top:46px}}
