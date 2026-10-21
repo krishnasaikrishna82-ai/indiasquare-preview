@@ -213,6 +213,17 @@
     });
   });
 
+  /* ---------------- donation: go straight to the payment page after the form is sent */
+  var autopayDone = false;
+  var autopay = function () {
+    if (autopayDone) return;
+    var a = $('[data-autopay]'); if (!a) return;
+    autopayDone = true;
+    setTimeout(function () { window.location.assign(a.getAttribute('href')); }, 1200);
+  };
+  autopay();
+  if ('MutationObserver' in window) new MutationObserver(autopay).observe(document.body, { childList: true, subtree: true });
+
   /* ---------------- sticky header: compact + shadow once the page scrolls */
   var hdr = $('.isq-hdr');
   if (hdr) {
