@@ -171,7 +171,8 @@
     m.hidden = true;
     if (!$$('.isq-modal').some(function (x) { return !x.hidden; })) document.body.classList.remove('isq-lock');
     $$('iframe', m).forEach(function (f) { if (m.id === 'isq-video-modal') f.remove(); });
-    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    if (m.onclosed) m.onclosed();
+    if (lastFocus && lastFocus.focus) { try { lastFocus.focus({ preventScroll: true }); } catch (e) {} }
   }
   $$('.isq-modal').forEach(function (m) { $$('[data-close]', m).forEach(function (c) { c.addEventListener('click', function () { closeModal(m); }); }); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') $$('.isq-modal').forEach(function (m) { if (!m.hidden) closeModal(m); }); });
@@ -212,9 +213,57 @@
     });
   });
 
-  /* ---------------- photo lightbox */
+  /* ---------------- photo lightbox + sponsor ad viewer (prev/next, swipe, arrow keys) */
   var lb = document.getElementById('isq-lightbox');
-  $$('[data-lightbox]').forEach(function (a) {
-    a.addEventListener('click', function (e) { e.preventDefault(); var img = $('.isq-lb-img', lb); img.src = a.getAttribute('href'); img.alt = ($('img', a) || {}).alt || ''; openModal(lb); });
-  });
+  if (lb) {
+    var lbImg = $('.isq-lb-img', lb), lbCap = $('.isq-lb-cap', lb), lbPrev = $('.isq-lb-prev', lb), lbNext = $('.isq-lb-next', lb);
+    var set = [], idx = 0, pausedMarquee = null;
+    var show = function (i) {
+      if (!set.length) return;
+      idx = (i + set.length) % set.length;
+      lbImg.src = set[idx].src; lbImg.alt = set[idx].alt;
+      lbCap.textContent = set[idx].cap + (set.length > 1 ? '  ·  ' + (idx + 1) + ' / ' + set.length : '');
+      lbPrev.hidden = lbNext.hidden = set.length < 2;
+    };
+    var openSet = function (items, i, marquee) {
+      set = items; show(i);
+      if (marquee) { pausedMarquee = marquee; marquee.classList.add('is-paused'); }
+      openModal(lb);
+    };
+    lb.onclosed = function () {
+      if (pausedMarquee) { pausedMarquee.classList.remove('is-paused'); pausedMarquee = null; }
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    };
+    lbPrev.addEventListener('click', function () { show(idx - 1); });
+    lbNext.addEventListener('click', function () { show(idx + 1); });
+    document.addEventListener('keydown', function (e) {
+      if (lb.hidden || set.length < 2) return;
+      if (e.key === 'ArrowLeft') show(idx - 1);
+      if (e.key === 'ArrowRight') show(idx + 1);
+    });
+    var sx = null;
+    lb.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', function (e) {
+      if (sx === null) return;
+      var dx = e.changedTouches[0].clientX - sx; sx = null;
+      if (Math.abs(dx) > 45 && set.length > 1) show(idx + (dx < 0 ? 1 : -1));
+    });
+    $$('[data-lightbox]').forEach(function (a) {
+      a.addEventListener('click', function (e) { e.preventDefault(); var im = $('img', a) || {}; openSet([{ src: a.getAttribute('href'), alt: im.alt || '', cap: im.alt || '' }], 0); });
+    });
+    // Sponsor ads everywhere (home marquee, grand sponsors, sponsors page, gallery souvenir tab).
+    var capOf = function (img) { return (img.alt || '').replace(/^Sponsor ad:\s*/i, '').replace(/\s+ad$/i, ''); };
+    document.addEventListener('click', function (e) {
+      var ad = e.target.closest ? e.target.closest('.v2-ad') : null;
+      if (!ad || !$('img', ad) || (e.target.closest('a') && !e.target.closest('a').classList.contains('v2-ad'))) return;
+      e.preventDefault();
+      var scope = ad.closest('section') || document.body, seen = {}, items = [], at = 0, src = $('img', ad).currentSrc || $('img', ad).src;
+      $$('.v2-ad img', scope).forEach(function (im) {
+        var s = im.currentSrc || im.src; if (seen[s]) return; seen[s] = 1;
+        if (s === src) at = items.length;
+        items.push({ src: s, alt: im.alt || '', cap: capOf(im) });
+      });
+      openSet(items, at, ad.closest('.v2-marquee'));
+    });
+  }
 })();
