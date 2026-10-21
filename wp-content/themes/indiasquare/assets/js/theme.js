@@ -224,6 +224,17 @@
   autopay();
   if ('MutationObserver' in window) new MutationObserver(autopay).observe(document.body, { childList: true, subtree: true });
 
+  /* ---------------- WPForms segmented plans: put the price on the right like the built-in cards */
+  $$('.isq-seg-field li label').forEach(function (l) {
+    if (l.querySelector('.isq-seg-price')) return;
+    var t = l.textContent, i = t.lastIndexOf(' — '); if (i < 0) return;
+    var n = l.lastChild; if (!n || n.nodeType !== 3) return;
+    var txt = n.textContent, j = txt.lastIndexOf(' — '); if (j < 0) return;
+    n.textContent = txt.slice(0, j);
+    var nm = document.createElement('span'); nm.className = 'isq-seg-name'; l.insertBefore(nm, n); nm.appendChild(n);
+    var p = document.createElement('span'); p.className = 'isq-seg-price'; p.textContent = txt.slice(j + 3); l.appendChild(p);
+  });
+
   /* ---------------- sticky header: compact + shadow once the page scrolls */
   var hdr = $('.isq-hdr');
   if (hdr) {

@@ -207,3 +207,21 @@ body.admin-bar .isq-hdr{top:32px}
 @media (max-width:600px){body.admin-bar .isq-hdr{top:0}}
 @media (max-width:1180px){.isq-hdr .navt:checked~.v2-nav{max-height:calc(100vh - 120px);max-height:calc(100dvh - 120px);overflow-y:auto;overscroll-behavior:contain}}
 body.isq-fs-mode .isq-hdr{position:relative}
+
+/* ---------- segmented choices (sponsorship plans) — built-in + WPForms */
+.isq-seg{min-width:0;margin:0;padding:0;border:1.5px solid #EEE6EF;border-radius:16px;background:#FBF8FB;overflow:hidden}
+.isq-seg-head{display:flex;justify-content:space-between;gap:12px;width:100%;box-sizing:border-box;margin:0;padding:11px 16px;background:#F3EAF4;border-bottom:1.5px solid #EEE6EF;font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:#7A2E86;float:left}
+.isq-seg-grid{clear:both;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;padding:12px}
+.isq-seg-opt{justify-content:flex-start}
+.isq-seg-name{flex:1 1 auto;font-weight:600}
+.isq-seg-price{flex:0 0 auto;font-weight:800;color:#221122;font-variant-numeric:tabular-nums}
+.isq-seg-opt.is-off{cursor:not-allowed;background:#F6F2F7;color:#8A7C8E;border-style:dashed}
+.isq-seg-opt.is-off .isq-seg-price{color:#8A7C8E;font-weight:700}
+.isq-seg-opt.is-off .isq-seg-price a{color:#7A2E86}
+.isq-seg-desc{margin:0;padding:0 16px 14px;font-size:13px;line-height:1.55;color:#6E5F72}
+.isq-form .wpforms-container .isq-seg-field{margin-top:6px!important;padding:0!important;border:1.5px solid #EEE6EF!important;border-radius:16px;background:#FBF8FB;overflow:hidden}
+.isq-form .wpforms-container .isq-seg-field>.wpforms-field-label{margin:0!important;padding:11px 16px!important;background:#F3EAF4;border-bottom:1.5px solid #EEE6EF;font-size:12px!important;font-weight:800!important;letter-spacing:.9px;text-transform:uppercase;color:#7A2E86!important}
+.isq-form .wpforms-container .isq-seg-field ul{padding:12px!important;margin:0!important}
+.isq-form .wpforms-container .isq-seg-field li label{display:flex!important;flex:1;gap:10px}
+.isq-form .wpforms-container .isq-seg-field .wpforms-field-description{padding:0 16px 14px!important;margin:0!important;font-size:13px!important;line-height:1.55;color:#6E5F72}
+@media (max-width:520px){.isq-seg-grid{grid-template-columns:1fr}}
