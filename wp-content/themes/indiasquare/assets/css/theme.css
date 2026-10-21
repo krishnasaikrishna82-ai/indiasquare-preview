@@ -225,3 +225,14 @@ body.isq-fs-mode .isq-hdr{position:relative}
 .isq-form .wpforms-container .isq-seg-field li label{display:flex!important;flex:1;gap:10px}
 .isq-form .wpforms-container .isq-seg-field .wpforms-field-description{padding:0 16px 14px!important;margin:0!important;font-size:13px!important;line-height:1.55;color:#6E5F72}
 @media (max-width:520px){.isq-seg-grid{grid-template-columns:1fr}}
+
+/* ---------- popup banner: always shown whole (never cropped), any size */
+.isq-pop-art.is-img{background:#FBF8FB;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.isq-pop-art.is-img::before{display:none}
+.isq-pop-artimg{display:block;width:100%;height:100%;max-height:calc(100vh - 36px);object-fit:contain}
+.isq-pop-top .isq-pop-banner{width:100%;height:auto;max-height:50vh;max-height:50dvh;object-fit:contain;background:#FBF8FB}
+@media (max-width:760px){
+  .isq-pop-art.is-img{min-height:0}
+  .isq-pop-artimg{height:auto;max-height:38vh;max-height:38dvh}
+  .isq-pop-top .isq-pop-banner{max-height:38vh;max-height:38dvh}
+}
