@@ -207,7 +207,7 @@
       var list = $('.isq-video-list', vm); list.innerHTML = '';
       $('#isq-video-title').textContent = b.getAttribute('data-title');
       JSON.parse(b.getAttribute('data-videos') || '[]').forEach(function (src) {
-        var f = document.createElement('iframe'); f.src = src; f.allow = 'autoplay; fullscreen; picture-in-picture'; f.allowFullscreen = true; f.loading = 'lazy'; f.title = b.getAttribute('data-title'); list.appendChild(f);
+        var f = document.createElement('iframe'); f.src = src; f.allow = 'autoplay; fullscreen; picture-in-picture; encrypted-media; web-share'; f.referrerPolicy = 'strict-origin-when-cross-origin'; f.allowFullscreen = true; f.loading = 'lazy'; f.title = b.getAttribute('data-title'); list.appendChild(f);
       });
       openModal(vm);
     });
