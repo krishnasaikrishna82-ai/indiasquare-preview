@@ -193,3 +193,17 @@ body.isq-fs-mode .isq-fab{display:none}
   .isq-lb-prev{left:calc(50% - 60px)}.isq-lb-next{right:calc(50% - 60px)}
 }
 body.isq-lock .isq-fab,body.isq-lock .isq-fab-wa,body.isq-lock .isq-fab-cb{visibility:hidden}
+
+/* ---------- sticky header */
+html{scroll-padding-top:100px}
+.isq-hdr{position:-webkit-sticky;position:sticky;top:0;-webkit-backdrop-filter:saturate(1.4) blur(10px);backdrop-filter:saturate(1.4) blur(10px);transition:box-shadow .25s ease}
+.isq-hdr .hdr{transition:padding .25s ease}
+.isq-hdr.is-stuck{box-shadow:0 10px 28px -18px rgba(34,17,34,.45)}
+.isq-hdr.is-stuck .hdr{padding-top:9px!important;padding-bottom:9px!important}
+.isq-hdr .hdr>a:first-child svg,.isq-hdr .hdr>a:first-child img{transition:width .25s ease,height .25s ease}
+.isq-hdr.is-stuck .hdr>a:first-child svg,.isq-hdr.is-stuck .hdr>a:first-child img{width:40px;height:40px}
+body.admin-bar .isq-hdr{top:32px}
+@media (max-width:782px){body.admin-bar .isq-hdr{top:46px}}
+@media (max-width:600px){body.admin-bar .isq-hdr{top:0}}
+@media (max-width:1180px){.isq-hdr .navt:checked~.v2-nav{max-height:calc(100vh - 120px);max-height:calc(100dvh - 120px);overflow-y:auto;overscroll-behavior:contain}}
+body.isq-fs-mode .isq-hdr{position:relative}

@@ -213,6 +213,15 @@
     });
   });
 
+  /* ---------------- sticky header: compact + shadow once the page scrolls */
+  var hdr = $('.isq-hdr');
+  if (hdr) {
+    var stuck = function () { hdr.classList.toggle('is-stuck', (window.scrollY || window.pageYOffset) > 40); };
+    window.addEventListener('scroll', stuck, { passive: true }); stuck();
+    // Close the mobile menu after picking a link.
+    $$('.v2-nav a', hdr).forEach(function (a) { a.addEventListener('click', function () { var t = document.getElementById('navt'); if (t) t.checked = false; }); });
+  }
+
   /* ---------------- photo lightbox + sponsor ad viewer (prev/next, swipe, arrow keys) */
   var lb = document.getElementById('isq-lightbox');
   if (lb) {
@@ -248,8 +257,20 @@
       var dx = e.changedTouches[0].clientX - sx; sx = null;
       if (Math.abs(dx) > 45 && set.length > 1) show(idx + (dx < 0 ? 1 : -1));
     });
-    $$('[data-lightbox]').forEach(function (a) {
-      a.addEventListener('click', function (e) { e.preventDefault(); var im = $('img', a) || {}; openSet([{ src: a.getAttribute('href'), alt: im.alt || '', cap: im.alt || '' }], 0); });
+    // Gallery photos: every photo in the same album/panel opens as one set (prev / next / swipe / arrow keys).
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest ? e.target.closest('[data-lightbox]') : null;
+      if (!a) return;
+      e.preventDefault();
+      var scope = a.closest('[data-panel]') || a.closest('section') || document.body, items = [], at = 0, seen = {};
+      $$('[data-lightbox]', scope).forEach(function (x) {
+        if (x.closest('[hidden]')) return;
+        var href = x.getAttribute('href'); if (!href || seen[href]) return; seen[href] = 1;
+        var im = $('img', x) || {}, fc = $('figcaption', x);
+        if (x === a) at = items.length;
+        items.push({ src: href, alt: im.alt || '', cap: (fc && fc.textContent.trim()) || im.alt || '' });
+      });
+      openSet(items, at);
     });
     // Sponsor ads everywhere (home marquee, grand sponsors, sponsors page, gallery souvenir tab).
     var capOf = function (img) { return (img.alt || '').replace(/^Sponsor ad:\s*/i, '').replace(/\s+ad$/i, ''); };
