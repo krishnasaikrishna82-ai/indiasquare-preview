@@ -1,11 +1,10 @@
-IndiaSquare website — V2 preview build
-=========================================
-Static site: upload the whole folder (index.html + assets/) to any web host
-(Netlify, Vercel, GitHub Pages, cPanel, S3). No build step or server code needed.
+IndiaSquare website — preview build (static export of the WordPress theme)
+=========================================================================
+This folder is a static snapshot of the IndiaSquare WordPress theme (indiasquare.zip v1.1.0),
+served on Render at https://indiasquare-preview.onrender.com.
 
-robots.txt blocks search engines while this is a demo. Delete it when the site
-moves to indiasquare.org.
+Includes: street map directory with Open now filter, 49 merchant profile pages (/business/<slug>/),
+Getting Here page (parking, PATH, buses, bike, accessibility), live stream page, donation popup.
 
-Forms show a preview message only; connect them to a backend before launch.
-Placeholders still to fill: [START TIME], [DEADLINE], [PAYMENT GATEWAY],
-[VIMEO / YOUTUBE EMBED], one directory address marked [ADDRESS].
+Forms show a preview message only. They work on the real WordPress install (WPForms).
+robots.txt blocks search engines while this is a demo. Old *.html URLs redirect to the new pages.
